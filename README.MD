@@ -1,0 +1,1 @@
+An artificial intelligence program that understands any kind of text and image data. The AI program is based on the transformer model and Reinforcement Learning agents.
