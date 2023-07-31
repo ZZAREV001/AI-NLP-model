@@ -32,4 +32,9 @@ function (pe::PositionEmbeddings)(x)
     return x + pos_embeddings 
 end
 
+function WordEmbeddings(vocab_size, emb_size)
+    embeddings = rand(Uniform(-1e-4, 1e-4), (vocab_size, emb_size)) 
+    new(embeddings, vocab_size, emb_size)
+end
+
 end # module

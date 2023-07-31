@@ -1,8 +1,9 @@
 module RLAgent 
 
 """
-Abstract RL agent type.
+Abstract RL agent type
 """
+# TODO: finishing the RLAgent module
 abstract type RLAgent end
 
 """ 
