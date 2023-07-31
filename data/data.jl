@@ -46,7 +46,40 @@ function preprocess(src_seq, trg_seq)
 
 end
 
+# Load and preprocess data
+function process_data(src_path, trg_path, max_len; tokenizer=default_tokenizer)
+
+  # Load text
+  src_texts = readlines(src_path)
+  trg_texts = readlines(trg_path)
+
+  # Tokenize
+  src_seqs = tokenize(tokenizer, src_texts)
+  trg_seqs = tokenize(tokenizer, trg_texts)  
+
+  # Pad sequences
+  src_seqs = padsequence(src_seqs, max_len)
+  trg_seqs = padsequence(trg_seqs, max_len)
+
+  # Return DataLoader
+  return DataLoader((src_seqs, trg_seqs), batch_size=64) 
+
+end
+
 # Postprocess functions 
-function postprocess(y_pred, y_true)
-  # Return loss
+function postprocess(pred, target)
+
+  # Flatten prediction and target
+  pred = flatten(pred, dims=(1,2)) 
+  target = flatten(target, dims=(1,2))
+
+  # Ignore padding tokens 
+  mask = target .!= 0
+
+  # Compute cross entropy loss
+  loss = crossentropy(pred[mask], target[mask])
+
+  # Return average loss
+  return mean(loss)
+
 end

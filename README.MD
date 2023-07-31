@@ -1,1 +1,1 @@
-An artificial intelligence program that understands any kind of text and image data. The AI program is based on the transformer model and Reinforcement Learning agents.
+An artificial intelligence program that is a natural language program. The AI program is based on the transformer model, Reinforcement Learning agents and the new architecture called Receptance Weighted Key Value (RWKV - May 2023).

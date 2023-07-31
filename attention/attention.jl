@@ -11,39 +11,25 @@ struct Attention
 end
 
 # Compute attention weights
-function attention_weights(q::Embedding, k::Embedding, v::Embedding; attn::Attention, mask=nothing)
-    # Project queries, keys and values for each head
-    qs = Array{Float32}(attn.n_heads, size(q, 2), attn.dim ÷ attn.n_heads) 
-    ks = Array{Float32}(attn.n_heads, size(k, 2), attn.dim ÷ attn.n_heads)
-    vs = Array{Float32}(attn.n_heads, size(v, 2), attn.dim ÷ attn.n_heads)
-    
-    for h = 1:attn.n_heads
-        qs[h,:,:] = q * attn.wq[h]
-        ks[h,:,:] = k * attn.wk[h]
-        vs[h,:,:] = v * attn.wv[h]
-    end
-    
-    # Compute attention weights   
-    scores = qs * ks'                             
-    scores .= scores ./ sqrt.(attn.dim ÷ attn.n_heads)
-    
-    if !isnothing(mask)
-        scores .= scores .+ mask .* -1e9 
-    end  
-    probs = softmax(scores; dims=3)
-    
-    return probs
-end  
+function linear_attention(k::Embedding, w; attn)
 
-# Apply attention weights  
-function attention_output(probs::Array{Float32}, v::Embedding, attn::Attention)
-  outputs = Array{Float32}(attn.n_heads, size(v,2),  attn.dim÷attn.n_heads)
-  for h = 1:attn.n_heads
-    outputs[h,:,:] = probs[h,:,:] * vs[h,:,:] 
-  end
-  output = reshape(reduce(hcat, outputs), :, attn.dim)
+  # Project k for each head 
+  ks = project_heads(k, attn) 
   
-  return output
-end  
+  # Apply time decay w
+  ks = ks .* w
+
+  # Compute attention scores
+  scores = ks
+  
+  # Normalize 
+  scores ./= sqrt.(attn.dim / attn.n_heads) 
+
+  # Softmax
+  probs = softmax(scores; dims=3)
+
+  return probs 
+
+end
 
 end # module

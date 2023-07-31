@@ -9,20 +9,24 @@ Transformer model. Consists of an encoder, decoder and RL agent.
 struct Transformer
     encoder::TransformerEncoder
     decoder::TransformerDecoder
-    rl_agent::RLAgent  # Abstract type, implementation details hidden
+    rl_agent::RLAgent 
 end
-
-function Transformer(; n_layers=6, n_heads=8, dim=512, dim_ff=2048, 
-                    max_len=512, src_vocab=40000, trg_vocab=40000,  
-                    rl_agent)
-    attn = Attention(dim, n_heads) 
-    ff = FeedForward(dim, dim_ff)
-    position = PostionEmbedding(dim, max_len)
+  
+function Transformer(; n_layers, n_heads, dim, dim_ff, max_len, src_vocab, trg_vocab, rl_agent)
+  
+    # Attention uses linear attention 
+    attn = LinearAttention(dim, n_heads)
     
-    encoder = TransformerEncoder(n_layers, attn, ff, position, src_vocab)
+    # TransformerBlock has token shift
+    ff = TransformerBlock(dim, dim_ff) 
+    
+    position = PositionalEncoding(dim, max_len)
+  
+    # Encoder and decoder handle receptance
+    encoder = TransformerEncoder(n_layers, attn, ff, position, src_vocab) 
     decoder = TransformerDecoder(n_layers, attn, ff, position, trg_vocab)
-    
-    return Transformer(encoder, decoder, rl_agent) 
+  
+    return Transformer(encoder, decoder, rl_agent)
 end
 
 function forward(model::Transformer, src, trg, mode) 

@@ -1,3 +1,8 @@
+include("data.jl")
+
+train_data = process_data("train_src.txt", "train_trg.txt", 512)
+val_data = process_data("val_src.txt", "val_trg.txt", 512) 
+
 # Extract text from PDFs
 text = ""
 for pdf in pdf_files
@@ -23,18 +28,38 @@ model = TransformerModel()
 optimizer = Adam(0.01) 
 loss_fn = CrossEntropy()
 
-# Train loop 
+# Generate model input and targets 
+train_input, train_target = vectorize_data(train_sentences)
+
+# Wrap input and target in DataLoader
+train_data = DataLoader((train_input, train_target), batchsize=64) 
+
+# Define optimizer
+opt = ADAM(0.01) 
+
+# Training loop
 for epoch in 1:100
-    for batch in DataLoader(input_tensor, target_tensor, batch_size=64)
-        # Train model on batch
-        # ...
-    end
-    
-    # Evaluate on val 
-    val_loss = evaluate(model, val_input, val_target)
-end  
 
-# Test on test set
-test_loss, test_acc = evaluate(model, test_input, test_target)
+  # Loop over batches
+  for (input, target) in train_data
 
-@info "Test loss: $test_loss, Test acc: $test_acc"
+    # Forward pass 
+    out = model(input)
+
+    # Compute loss
+    loss = postprocess(out, target) 
+
+    # Backprop
+    back!(loss)
+
+    # Update model
+    update!(opt, params(model))
+
+  end
+
+  # Compute validation loss
+  val_loss = evaluate(model, val_input, val_target)
+  
+  @info "Epoch $epoch, Train loss: $loss, Val loss: $val_loss"
+
+end
