@@ -1,9 +1,10 @@
 module RLAgent 
 
+using StringDistances
+
 """
 Abstract RL agent type
 """
-# TODO: finishing the RLAgent module
 abstract type RLAgent end
 
 """ 
@@ -21,8 +22,8 @@ end
 Reinforce RL agent that maintains a policy and value network.
 """ 
 struct ReinforceRLAgent <: RLAgent
-    policy_net::Net  # Neural network 
-    value_net::Net   # Neural network
+    policy_net::Net   
+    value_net::Net   
     optimizer::Optimizer
     encoder::TransformerEncoder
     decoder::TransformerDecoder
@@ -41,9 +42,48 @@ function reinforce_sample(agent::ReinforceRLAgent, encoder_output, decoder_outpu
     return action
 end
 
+function update_reinforce!(agent::ReinforceRLAgent, states, actions, targets)
 
-function update_reinforce!(agent::ReinforceRLAgent, rewards) 
-    ...
-end 
+    # Calculate the errors made by the transformer model
+    errors = calculate_errors(actions, targets) 
+
+    # Calculate rewards based on the errors
+    rewards = calculate_rewards(errors) 
+
+    # Calculate discounted rewards
+    discounts = discount(rewards, 0.99)  
+
+    # Get log probabilities of actions taken 
+    log_probs = log.(agent.policy_net(states))
+
+    # Calculate loss  
+    loss = -sum(discounts .* log_probs)
+
+    # Backpropagate loss
+    back!(loss)
+
+    # Update policy network
+    update!(agent.optimizer, params(agent.policy_net))
+
+    # Update value network
+    values = agent.value_net(states)
+    value_loss = mse(values, discounts)
+
+    back!(value_loss)
+    update!(agent.optimizer, params(agent.value_net))
+
+end
+
+# Define his function to calculate errors (sequence-to-sequence task)
+function calculate_errors(actions, targets)
+    return [levenshtein(action, target) for (action, target) in zip(actions, targets)]
+end
+
+# Define this function to calculate rewards (normalize the rewards to ensure that they are on a consistent scale across different examples and batches)
+function calculate_rewards(errors)
+    max_error = maximum(errors)
+    min_error = minimum(errors)
+    return 1 .- (errors .- min_error) ./ (max_error - min_error)
+end
 
 end # module

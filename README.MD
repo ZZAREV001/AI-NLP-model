@@ -1,6 +1,6 @@
 An artificial intelligence program that is a natural language program. The AI program is based on the transformer model, Reinforcement Learning agents and the new architecture called Receptance Weighted Key Value (RWKV - May 2023).
 
-Parameters of our AI model RKWV - tranformer:
+Parameters of our AI model (architecture RKWV - tranformer):
 
 # Embeddings
 src_vocab * dim = 40000 * 512 = 20,480,000
