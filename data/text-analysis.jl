@@ -12,7 +12,6 @@ end
 # Preprocess text
 text = lowercase(text)
 text = remove_punctuation(text) 
-# ...
 
 # Split into sentences 
 sentences = split_sentences(text)

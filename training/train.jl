@@ -1,3 +1,5 @@
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/data.jl")
+
 using JSON 
 using CUDA
 
@@ -8,7 +10,7 @@ config = JSON.parsefile("configs/config.json")
 device = CUDA.has_cuda() ? "cuda" : "cpu"
 
 # Load data
-data = load("data/data.jl")
+data = load("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/data.jl")
 
 # Load model 
 model = if config["model_type"] == "transformer" 

@@ -1,9 +1,9 @@
-using Tokenizers
+using Tokenize
 using DataLoaders
 
 # Load source and target text data
-src_texts = readlines("source.txt") 
-trg_texts = readlines("target.txt")
+src_texts = readlines("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt") 
+trg_texts = readlines("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt")
 
 # Create tokenizer 
 tokenizer = Tokenizer(vocab_size=40000) 

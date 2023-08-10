@@ -12,7 +12,7 @@ using .Models
 function main()
 
     # Load data
-    raw_data = Ingestion.load_data("data.txt")
+    raw_data = Ingestion.load_data("/Users/GoldenEagle//Desktop/Divers/Dossier-cours-IT/AI/Datasets-examples/churn-bigml-80.csv")
 
     # Preprocess data
     tokenizer = Tokenizer(vocab_size=40000) 
