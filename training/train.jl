@@ -9,8 +9,13 @@ config = JSON.parsefile("configs/config.json")
 # Set device 
 device = CUDA.has_cuda() ? "cuda" : "cpu"
 
-# Load data
-data = load("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/data.jl")
+# Define paths and max_len
+src_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt"
+trg_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt"
+max_len = 100 
+
+# Load and preprocess data
+data = process_data(src_path, trg_path, max_len, tokenizer=default_tokenizer)
 
 # Load model 
 model = if config["model_type"] == "transformer" 
