@@ -1,20 +1,4 @@
 using TextAnalysis
-using DataLoaders: AbstractDataLoader, nobs, getobs, DataLoader
-
-struct MyDataLoader <: AbstractDataLoader
-  data::Vector{Tuple{Any, Any}}
-  batchsize::Int
-end
-
-DataLoaders.nobs(loader::MyDataLoader) = length(loader.data)
-
-function DataLoaders.getobs(loader::MyDataLoader, idx::Int)
-  start_idx = (idx - 1) * loader.batchsize + 1
-  end_idx = min(idx * loader.batchsize, nobs(loader))
-  src_seqs = [loader.data[i][1] for i in start_idx:end_idx]
-  trg_seqs = [loader.data[i][2] for i in start_idx:end_idx]
-  return (src_seqs, trg_seqs)
-end
 
 # Define the tokenizer
 function my_tokenizer(text)
@@ -77,7 +61,7 @@ function preprocess(src_seq, trg_seq)
 end
 
 # Load and preprocess data
-function process_data(src_path, trg_path, max_len; tokenizer)
+function process_data(src_path, trg_path, max_len; tokenizer, batchsize=64)
 
   # Load text
   src_texts = readlines(src_path)
@@ -94,8 +78,10 @@ function process_data(src_path, trg_path, max_len; tokenizer)
   # Combine source and target sequences
   data = [(src, trg) for (src, trg) in zip(src_seqs, trg_seqs)]
 
-  # Return custom DataLoader
-  return DataLoader(MyDataLoader(data, 64))
+  # Create batches
+  batches = [data[i:min(i+batchsize-1, end)] for i in 1:batchsize:length(data)]
+
+  return batches
 end
 
 # Postprocess functions 

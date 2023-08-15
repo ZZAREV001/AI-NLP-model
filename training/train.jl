@@ -1,4 +1,8 @@
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/attention/attention.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/models/transformer.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/models/rl_agent.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/data.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/embeddings/embeddings.jl")
 
 using JSON 
 using CUDA
@@ -19,7 +23,7 @@ data = process_data(src_path, trg_path, max_len, tokenizer=default_tokenizer)
 
 # Load model 
 model = if config["model_type"] == "transformer" 
-    TransformerModel(config["embed_size"], config["num_heads"], config["feed_forward_size"]) 
+    Transformer(n_layers=config["n_layers"], n_heads=config["n_heads"], dim=config["dim"], dim_ff=config["dim_ff"], max_len=config["max_len"], src_vocab=config["src_vocab"], trg_vocab=config["trg_vocab"], rl_agent=config["rl_agent"])
 elseif config["model_type"] == "rl_agent"
     RLAgentModel(config["state_size"], config["action_size"])
 end
@@ -35,26 +39,36 @@ loss_fn = CrossEntropy()
 
 # Train loop
 for epoch in 1:config["epochs"]
-    for batch in data 
+    for (src_batch, trg_batch) in data
+        # Preprocess the batch
+        src_seq, src_pad_mask, trg_input, trg_pad_mask, trg_target = preprocess(src_batch, trg_batch)
+
+        # Move data to device
+        src_seq = src_seq |> device
+        src_pad_mask = src_pad_mask |> device
+        trg_input = trg_input |> device
+        trg_pad_mask = trg_pad_mask |> device
+        trg_target = trg_target |> device
+
         # Zero gradients
-        Optimizer.zero_grad!(optimizer) 
-        
-        # Get predictions 
-        preds = model(batch) 
-        
+        Optimizer.zero_grad!(optimizer)
+
+        # Get predictions
+        preds = model(src_seq, src_pad_mask, trg_input, trg_pad_mask)
+
         # Calculate loss
-        loss = loss_fn(preds, batch["labels"])
-        
-        # Backpropagate 
+        loss = postprocess(preds, trg_target)
+
+        # Backpropagate
         backprop!(loss, model)
-        
-        # Update weights 
+
+        # Update weights
         update!(optimizer, model)
     end
-    
-    # Evalute on validation set
+
+    # Evaluate on validation set (you'll need to define this part)
     val_loss = evaluate(model, val_data)
-    
+
     # Log results
-    @info "Epoch $epoch | Train loss: $loss | Val loss: $val_loss" 
+    @info "Epoch $epoch | Train loss: $loss | Val loss: $val_loss"
 end
