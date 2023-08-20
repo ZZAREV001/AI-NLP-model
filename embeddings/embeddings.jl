@@ -1,20 +1,6 @@
 module Embeddings
 
-"""
-WordEmbeddings contains the embedding matrix for word embeddings.
-"""
-struct WordEmbeddings
-    embeddings::Array{Float64,2}
-    vocab_size::Int
-    emb_size::Int
-end
-
-"""
-PositionEmbeddings contains the embedding matrix for position embeddings.
-"""
-struct PositionEmbeddings
-    embeddings::Array{Float64,2}
-end 
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
 """
 Lookup word embeddings for input words/tokens.

@@ -1,35 +1,8 @@
-module Attention
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
-using ..Embeddings: Embedding, PositionEmbedding
+# We can define any additional functions or structs related to attention here
 
-"""
-Attention layer. Computes attention weights and outputs a weighted sum of the values.
-"""
-struct Attention
-    dim::Int         # Dimension of projections and embeddings
-    n_heads::Int     # Number of attention heads      
+# Specific function to project the keys for multi-head attention
+function project_heads(k::Embedding, attn::Attention)
+    # Implementation of the projection (if needed)
 end
-
-# Compute attention weights
-function linear_attention(k::Embedding, w; attn)
-
-  # Project k for each head 
-  ks = project_heads(k, attn) 
-  
-  # Apply time decay w
-  ks = ks .* w
-
-  # Compute attention scores
-  scores = ks
-  
-  # Normalize 
-  scores ./= sqrt.(attn.dim / attn.n_heads) 
-
-  # Softmax
-  probs = softmax(scores; dims=3)
-
-  return probs 
-
-end
-
-end # module
