@@ -5,33 +5,6 @@ include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/co
 """
 Transformer model. Consists of an encoder, decoder and RL agent.
 """
-struct Transformer
-    encoder::TransformerEncoder
-    decoder::TransformerDecoder
-    rl_agent::RLAgent 
-end
-
-struct TransformerEncoder
-    n_layers::Int
-    attention::Attention
-    feed_forward::FeedForward
-    position_encoding::PositionEncoding
-end
-
-struct TransformerDecoder
-    n_layers::Int
-    attention::Attention
-    feed_forward::FeedForward
-    position_encoding::PositionEncoding
-    encoder_attention::Attention
-end
-
-struct RLAgent
-    policy_network::NeuralNetwork
-    value_network::NeuralNetwork
-    learning_rate::Float64
-    discount_factor::Float64
-end
 
 function Transformer(; n_layers, n_heads, dim, dim_ff, max_len, src_vocab, trg_vocab, rl_agent)
   

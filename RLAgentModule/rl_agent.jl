@@ -1,11 +1,8 @@
-module RLAgent 
+module RLAgentModule 
+
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
 using StringDistances
-
-"""
-Abstract RL agent type
-"""
-abstract type RLAgent end
 
 """ 
 Vanilla RL agent that samples from a uniform distribution over target vocab.
@@ -21,12 +18,18 @@ end
 """ 
 Reinforce RL agent that maintains a policy and value network.
 """ 
-struct ReinforceRLAgent <: RLAgent
-    policy_net::Net   
-    value_net::Net   
-    optimizer::Optimizer
-    encoder::TransformerEncoder
-    decoder::TransformerDecoder
+function update!(optimizer::SGDOptimizer, params::Vector{Float64}, gradients::Vector{Float64})
+    for i in 1:length(params)
+        params[i] -= optimizer.learning_rate * gradients[i]
+    end
+end
+
+function forward(net::Net, input::Vector{Float64})
+    output = input
+    for layer in net.layers
+        output = layer.activation.(layer.weights * output .+ layer.biases)
+    end
+    return output
 end
 
 function reinforce_sample(agent::ReinforceRLAgent, encoder_output, decoder_output)

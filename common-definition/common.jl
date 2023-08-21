@@ -1,4 +1,5 @@
 # Common struct definitions and functions used by several modules
+
 """
 WordEmbeddings contains the embedding matrix for word embeddings.
 """
@@ -21,8 +22,6 @@ struct Embedding
     emb_size::Int             # Embedding dimension
 end
 
-
-
 """
 Attention layer. Computes attention weights and outputs a weighted sum of the values.
 """
@@ -31,22 +30,59 @@ struct Attention
     n_heads::Int     # Number of attention heads      
 end
 
-# Compute attention weights
-function linear_attention(k::Embedding, w; attn)
-    # Project k for each head 
-    ks = project_heads(k, attn) 
-    
-    # Apply time decay w
-    ks = ks .* w
-  
-    # Compute attention scores
-    scores = ks
-    
-    # Normalize 
-    scores ./= sqrt.(attn.dim / attn.n_heads) 
-  
-    # Softmax
-    probs = softmax(scores; dims=3)
-  
-    return probs 
+struct FeedForward
+    layer1::Array{Float64,2}
+    layer2::Array{Float64,2}
+end
+
+struct PositionEncoding
+    encoding::Array{Float64,2}
+end
+
+struct TransformerEncoder
+    n_layers::Int
+    attention::Attention
+    feed_forward::FeedForward
+    position_encoding::PositionEncoding
+end
+
+struct TransformerDecoder
+    n_layers::Int
+    attention::Attention
+    feed_forward::FeedForward
+    position_encoding::PositionEncoding
+    encoder_attention::Attention
+end
+
+"""
+Abstract RL agent type
+"""
+abstract type RLAgent end
+
+struct Layer
+    weights::Array{Float64,2}
+    biases::Vector{Float64}
+    activation::Function
+end
+
+struct Net
+    layers::Vector{Layer}
+end
+
+struct SGDOptimizer
+    learning_rate::Float64
+end
+
+struct ReinforceRLAgent <: RLAgent
+    policy_net::Net   
+    value_net::Net   
+    optimizer::SGDOptimizer
+    encoder::TransformerEncoder
+    decoder::TransformerDecoder
+end
+
+struct Transformer
+    encoder::TransformerEncoder
+    decoder::TransformerDecoder
+    rl_agent::RLAgent 
 end

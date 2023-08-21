@@ -1,8 +1,9 @@
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/attention/attention.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/models/transformer.jl")
-include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/models/rl_agent.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/RLAgentModule/rl_agent.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/data.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/embeddings/embeddings.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
 using JSON 
 using CUDA
@@ -21,12 +22,27 @@ max_len = 100
 # Load and preprocess data
 data = process_data(src_path, trg_path, max_len, tokenizer=default_tokenizer)
 
-# Load model 
-model = if config["model_type"] == "transformer" 
-    Transformer(n_layers=config["n_layers"], n_heads=config["n_heads"], dim=config["dim"], dim_ff=config["dim_ff"], max_len=config["max_len"], src_vocab=config["src_vocab"], trg_vocab=config["trg_vocab"], rl_agent=config["rl_agent"])
-elseif config["model_type"] == "rl_agent"
-    RLAgentModel(config["state_size"], config["action_size"])
-end
+# Load model (cf. config.json file for the hyperparameters)
+attention = Attention(config["attention_dim"], config["attention_heads"])
+layer1_size = (2048, 512)
+layer2_size = (512, 128)
+
+feed_forward_layer1 = rand(Float64, layer1_size...)
+feed_forward_layer2 = rand(Float64, layer2_size...)
+
+feed_forward = FeedForward(feed_forward_layer1, feed_forward_layer2)
+position_encoding = PositionEncoding(encoding=config["position_encoding"])
+
+encoder = TransformerEncoder(n_layers=config["encoder_layers"], attention=attention, feed_forward=feed_forward, position_encoding=position_encoding)
+decoder = TransformerDecoder(n_layers=config["decoder_layers"], attention=attention, feed_forward=feed_forward, position_encoding=position_encoding, encoder_attention=attention)
+
+policy_net = Net(layers=config["policy_layers"])
+value_net = Net(layers=config["value_layers"])
+optimizer = SGDOptimizer(learning_rate=config["learning_rate"])
+
+rl_agent = ReinforceRLAgent(policy_net=policy_net, value_net=value_net, optimizer=optimizer, encoder=encoder, decoder=decoder)
+
+model = Transformer(encoder=encoder, decoder=decoder, rl_agent=rl_agent)
 
 # Move model to device
 model = model |> device 
