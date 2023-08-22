@@ -14,5 +14,7 @@
   "trg_vocab": 40000,
   "rl_agent": 5,
   "policy_layers": [128, 64],
-  "value_layers": [128, 64]
+  "value_layers": [128, 64],
+  "epochs": 100,
+  "learning_rate": 0.001
 }

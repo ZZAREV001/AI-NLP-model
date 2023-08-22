@@ -3,19 +3,27 @@ function evaluate(model, data)
     total_acc = 0.0
     n_batches = 0
     
-    for batch in data
-        preds = model(batch) 
-        loss = loss_fn(preds, batch["labels"])
+    for (src_batch, trg_batch) in data
+        # Preprocess the batch
+        src_seq, src_pad_mask, trg_input, trg_pad_mask, trg_target = preprocess(src_batch, trg_batch)
+
+        # Move data to device (no needed for now)
+        # ...
+
+        # Get predictions
+        preds = model(src_seq, src_pad_mask, trg_input, trg_pad_mask)
+
+        # Calculate loss
+        loss = postprocess(preds, trg_target)
         total_loss += loss
         
-        # Calculate accuracy
-        max_preds = argmax(preds, dims=2) .== batch["labels"]
-        total_acc += mean(max_preds) * size(batch["labels"])[1]  # Multiply by seq_len 
-        
+        # Calculate accuracy (if needed)
+        # ...
+
         n_batches += 1
     end
     
     avg_loss = total_loss / n_batches
-    avg_acc = total_acc / size(data["labels"])[2]  # Divide by total number of labels
-    return avg_loss, avg_acc
+    # avg_acc = total_acc / size(data["labels"])[2]  # Update here to calculate accuracy
+    return avg_loss #, avg_acc
 end
