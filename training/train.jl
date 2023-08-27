@@ -9,6 +9,7 @@ include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/ev
 using JSON 
 using CUDA
 using Flux
+using .LoggingModule
 
 # Load config
 config = JSON.parsefile("configs/config.json")

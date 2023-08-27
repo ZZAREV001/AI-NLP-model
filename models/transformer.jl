@@ -1,5 +1,6 @@
 module Models
 
+using .LoggingModule
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
 """
@@ -19,6 +20,9 @@ function Transformer(; n_layers, n_heads, dim, dim_ff, max_len, src_vocab, trg_v
     # Encoder and decoder handle receptance
     encoder = TransformerEncoder(n_layers, attn, ff, position, src_vocab) 
     decoder = TransformerDecoder(n_layers, attn, ff, position, trg_vocab)
+
+    # Call logging functions
+    log_encoder_decoder_output(encoder_output, decoder_output)
   
     return Transformer(encoder, decoder, rl_agent)
 end

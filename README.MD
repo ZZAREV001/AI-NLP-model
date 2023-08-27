@@ -1,4 +1,4 @@
-An artificial intelligence program that is a natural language program. The AI program is based on the transformer model, Reinforcement Learning agents and the new architecture called Receptance Weighted Key Value (RWKV - May 2023). It is specialized on time series.
+An artificial intelligence program that is a natural language program. The AI program is based on the transformer model, reinforcement learning agents, and the new architecture called Receptance Weighted Key Value (RWKV - May 2023). It is specialized in time series. An important objective is to maintain linear time complexity for different kinds of datasets.
 
 Parameters of our AI model (architecture RKWV - tranformer):
 

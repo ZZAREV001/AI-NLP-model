@@ -1,5 +1,14 @@
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
+struct LinearAttention
+    dim::Int 
+    num_heads::Int
+end
+  
+function LinearAttention(dim, num_heads)
+    return LinearAttention(dim, num_heads) 
+end
+
 # Compute attention weights
 function linear_attention(k::Embedding, w; attn)
     # Project k for each head 
