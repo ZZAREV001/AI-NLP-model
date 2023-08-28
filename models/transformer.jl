@@ -1,5 +1,6 @@
 module Models
 
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/logging/logging.jl")
 using .LoggingModule
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
@@ -22,7 +23,7 @@ function Transformer(; n_layers, n_heads, dim, dim_ff, max_len, src_vocab, trg_v
     decoder = TransformerDecoder(n_layers, attn, ff, position, trg_vocab)
 
     # Call logging functions
-    log_encoder_decoder_output(encoder_output, decoder_output)
+    LoggingModule.log_encoder_decoder_output(encoder_output, decoder_output)
   
     return Transformer(encoder, decoder, rl_agent)
 end
@@ -30,6 +31,7 @@ end
 function forward(model::Transformer, src, trg, mode) 
     # Pass the source sequence through the encoder
     encoder_output = forward(model.encoder, src)
+    LoggingModule.log_encoder_decoder_output(encoder_output, nothing)  # Log encoder output
 
     # Initialize the decoder input as the start token
     decoder_input = trg[:, 1]
@@ -47,6 +49,7 @@ function forward(model::Transformer, src, trg, mode)
             decoder_output, decoder_state, attn_weights = forward(model.decoder, decoder_input, encoder_output)
             push!(decoder_outputs, decoder_output)
             push!(attention_weights, attn_weights)
+            LoggingModule.log_attention_weights(attn_weights)  # Log attention weights
 
             # Use the actual next token as the next input to the decoder
             decoder_input = trg[:, t]
@@ -57,6 +60,7 @@ function forward(model::Transformer, src, trg, mode)
             decoder_output, decoder_state, attn_weights = forward(model.decoder, decoder_input, encoder_output)
             push!(decoder_outputs, decoder_output)
             push!(attention_weights, attn_weights)
+            LoggingModule.log_attention_weights(attn_weights)  # Log attention weights
 
             # Use the decoder output as the next input to the decoder
             decoder_input = argmax(decoder_output, dims=2)
@@ -64,6 +68,9 @@ function forward(model::Transformer, src, trg, mode)
     else
         error("Invalid mode: $mode")
     end
+
+    # Log decoder outputs
+    LoggingModule.log_encoder_decoder_output(nothing, decoder_outputs)  # Log decoder output
 
     # Pass the decoder outputs and attention weights through the RL agent
     if model.rl_agent isa UniformRLAgent
@@ -73,6 +80,7 @@ function forward(model::Transformer, src, trg, mode)
     else
         error("Invalid RL agent: $(typeof(model.rl_agent))")
     end
+
     return rl_output
 end
 

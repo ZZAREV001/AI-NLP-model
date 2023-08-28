@@ -1,5 +1,7 @@
 module LoggingModule
 
+export log_attention, log_metrics
+
 # Check for NaN values in an array
 function check_for_nan(array, name)
     if any(isnan, array)
