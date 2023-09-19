@@ -1,4 +1,5 @@
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
+using Logging
 using NNlib: relu
 
 # Define the vocabulary

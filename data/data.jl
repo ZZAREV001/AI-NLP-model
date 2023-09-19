@@ -1,3 +1,5 @@
+module Data
+
 using TextAnalysis
 
 # Define the tokenizer
@@ -99,5 +101,7 @@ function postprocess(pred, target)
 
   # Return average loss
   return mean(loss)
+
+end
 
 end

@@ -1,4 +1,12 @@
 # Common struct definitions and functions used by several modules
+"""
+Tokenizer contains the vocabulary and methods to convert text data into a format that's usable by the model.
+"""
+struct Tokenizer
+    vocab::Dict{String, Int}  # Dictionary mapping tokens to their respective IDs
+    unk_token_id::Int         # ID to use for unknown tokens
+    vocab_size::Int           # The size of the vocabulary
+end
 
 """
 WordEmbeddings contains the embedding matrix for word embeddings.

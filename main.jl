@@ -2,7 +2,8 @@ include("pipelines/ingestion.jl")
 include("pipelines/preprocessing.jl")
 include("pipelines/validation.jl")
 include("models/transformer.jl")
-include("models/rl_agent.jl")
+include("RLAgentModule/rl_agent.jl") 
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 
 using .Ingestion
 using .Preprocessing
@@ -12,7 +13,10 @@ using .Models
 function main()
 
     # Load data
-    raw_data = Ingestion.load_data("/Users/GoldenEagle//Desktop/Divers/Dossier-cours-IT/AI/Datasets-examples/churn-bigml-80.csv")
+    raw_data = Ingestion.load_data("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Datasets-examples/churn-bigml-80.csv")
+
+    # Initialize a vocabulary (this is just a placeholder; replace with our actual English vocabulary file)
+    vocab = Dict("the" => 1, "a" => 2, "an" => 3)  # IMPORTANT: we include all tokens in our vocab. This will be a very long JSON file.
 
     # Preprocess data
     tokenizer = Tokenizer(vocab_size=40000) 
