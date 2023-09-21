@@ -50,7 +50,7 @@ function tokenize(tokenizer, data)
     return tokenized_sequences
 end
 
-function preprocess_data(data, tokenizer, max_sequence_length)
+function preprocess_data(data, tokenizer, max_sequence_length::Int64)
     # Tokenize the data
     sequences = tokenize(tokenizer, data)
 
