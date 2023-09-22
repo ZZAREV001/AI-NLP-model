@@ -13,6 +13,9 @@ using JSON
 
 function main()
 
+    # Load config
+    config = JSON.parsefile("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/configs/config.json")  
+
     # Load data
     raw_data = Ingestion.load_data("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/vocab.json")
 
@@ -41,6 +44,13 @@ function main()
     value_net = Net(value_layers)
 
     optimizer = SGDOptimizer(config["learning_rate"])
+    
+    n_layers = 6
+    attn = LinearAttention(512, 8)
+    ff = TransformerBlock(512, 2048)
+    position = PositionalEncoding(512, 512)
+    src_vocab = 40000
+    trg_vocab = 40000
     encoder = TransformerEncoder(n_layers, attn, ff, position, src_vocab)
     decoder = TransformerDecoder(n_layers, attn, ff, position, trg_vocab)
 
@@ -48,7 +58,7 @@ function main()
     rl_agent = Models.ReinforceRLAgent(net1, net2, optimizer, encoder, decoder)
 
     # Initialize model
-    model = Models.Transformer(n_layers=6, n_heads=8, dim=512, dim_ff=2048, max_len=512, src_vocab=40000, trg_vocab=40000, rl_agent=Models.ReinforceRLAgent())
+    model = Models.Transformer(n_layers=6, n_heads=8, dim=512, dim_ff=2048, max_len=512, src_vocab=40000, trg_vocab=40000, rl_agent=rl_agent)
 
     # Train model
     for epoch in 1:100
