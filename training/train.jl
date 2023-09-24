@@ -87,7 +87,6 @@ rl_agent = ReinforceRLAgent(policy_net, value_net, optimizer, encoder, decoder)
 model = Transformer(encoder, decoder, rl_agent)
 
 # Move model to device
-# Move model to device
 if CUDA.has_cuda()
     model = gpu(model)
 end

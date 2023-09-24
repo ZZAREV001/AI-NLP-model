@@ -4,6 +4,7 @@ include("pipelines/validation.jl")
 include("models/transformer.jl")
 include("RLAgentModule/rl_agent.jl") 
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/training/train.jl")
 
 using .Ingestion
 using .Preprocessing
