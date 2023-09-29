@@ -60,4 +60,24 @@ function preprocess_data(data, tokenizer, max_sequence_length::Int64)
     return padded_sequences
 end
 
+# Define the process_data function
+function process_data(src_path::String, trg_path::String, max_sequence_length::Int64, tokenizer)
+    # Read data from source and target files
+    src_data = readlines(src_path)
+    trg_data = readlines(trg_path)
+
+    # Tokenize and pad the source data
+    src_sequences = preprocess_data(src_data, tokenizer, max_sequence_length)
+
+    # Tokenize and pad the target data
+    trg_sequences = preprocess_data(trg_data, tokenizer, max_sequence_length)
+
+    # Combine the processed source and target data into a single data structure
+    # This could be a tuple, dictionary, or any other structure (we change here)
+    processed_data = (src_sequences, trg_sequences)
+
+    return processed_data
+end
+
+
 end # module

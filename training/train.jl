@@ -6,6 +6,7 @@ include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/em
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/evaluation/evaluation.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/logging/logging.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/pipelines/preprocessing.jl")
 
 using JSON 
 using CUDA
@@ -22,9 +23,10 @@ device = CUDA.has_cuda() ? "cuda" : "cpu"
 src_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt"
 trg_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt"
 max_len = 100 
+tokenizer = ""
 
 # Load and preprocess data
-data = process_data(src_path, trg_path, max_len, tokenizer=default_tokenizer)
+data = Preprocessing.process_data(src_path, trg_path, max_len, tokenizer)
 
 # Load model (cf. config.json file for the hyperparameters)
 attention = Attention(config["attention_dim"], config["attention_heads"])
