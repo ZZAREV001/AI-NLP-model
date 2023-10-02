@@ -12,6 +12,7 @@ using JSON
 using CUDA
 using Flux
 using .LoggingModule
+using .Ingestion
 
 # Load config
 config = JSON.parsefile("configs/config.json")
@@ -23,7 +24,7 @@ device = CUDA.has_cuda() ? "cuda" : "cpu"
 src_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt"
 trg_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt"
 max_len = 100 
-tokenizer = ""
+tokenizer = Ingestion.load_data("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/vocab.json")
 
 # Load and preprocess data
 data = Preprocessing.process_data(src_path, trg_path, max_len, tokenizer)
@@ -102,14 +103,29 @@ loss_fn = Flux.Losses.crossentropy
 # Validation data
 val_src_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt"
 val_trg_path = "/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt"
-val_data = process_data(val_src_path, val_trg_path, max_len, tokenizer=default_tokenizer)
+val_data = Preprocessing.process_data(val_src_path, val_trg_path, max_len, tokenizer)
 
 # Train loop
 for epoch in 1:config["epochs"]
     total_train_loss = 0.0
     n_batches = 0
+
+    println("Starting epoch: ", epoch)
     
     for (src_batch, trg_batch) in data
+        println("Length of data: ", length(data))
+        println("Before line 115: Length of my_vector: ", length(my_vector))
+        println("Before line 115: Content of my_vector: ", my_vector)
+        if isempty(src_batch) || isempty(trg_batch)
+            println("Empty batch detected.")
+            continue
+        end        
+        if isempty(my_vector)
+            println("The vector is empty.")
+        else
+            # Do something with my_vector[1]
+        end
+        
         # Preprocess the batch
         src_seq, src_pad_mask, trg_input, trg_pad_mask, trg_target = preprocess(src_batch, trg_batch)
 

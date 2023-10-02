@@ -22,6 +22,8 @@ function main()
 
     # Debug: Print the type of raw_data
     println("Type of raw_data: ", typeof(raw_data))
+    println("Length of raw_data: ", length(raw_data))
+    println("Length of preprocessed_data: ", length(preprocessed_data))
 
     # Convert raw_data to a dictionary if it's not already one
     if typeof(raw_data) != Dict{String, Int64}
@@ -65,6 +67,10 @@ function main()
     for epoch in 1:100
         for (src, trg) in preprocessed_data
             output = Models.forward(model, src, trg, "teacher_forcing")
+            if isempty(src) || isempty(trg)
+                println("Empty batch detected.")
+                continue
+            end            
             # Compute loss and update model parameters
         end
     end
