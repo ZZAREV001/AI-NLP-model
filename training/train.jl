@@ -7,12 +7,12 @@ include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/co
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/evaluation/evaluation.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/logging/logging.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/pipelines/preprocessing.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/pipelines/ingestion.jl")
 
 using JSON 
 using CUDA
 using Flux
 using .LoggingModule
-using .Ingestion
 
 # Load config
 config = JSON.parsefile("configs/config.json")
@@ -107,27 +107,40 @@ val_data = Preprocessing.process_data(val_src_path, val_trg_path, max_len, token
 
 # Train loop
 for epoch in 1:config["epochs"]
+    println("Starting epoch $epoch")  # Debug log
+    println("Size of data: ", length(data))
+    println("First element of data: ", data[1])
+    println("Second element of data: ", data[2])
+    println("Size of first element of data: ", length(data[1]))
+    println("Size of second element of data: ", length(data[2]))
+    if isempty(data[1]) || isempty(data[2])
+        error("Data is empty. Cannot proceed with training.")
+    end    
+
     total_train_loss = 0.0
     n_batches = 0
 
-    println("Starting epoch: ", epoch)
+    if isempty(data)
+        println("Data is empty. Exiting.")
+        break
+    end
     
     for (src_batch, trg_batch) in data
-        println("Length of data: ", length(data))
-        println("Before line 115: Length of my_vector: ", length(my_vector))
-        println("Before line 115: Content of my_vector: ", my_vector)
-        if isempty(src_batch) || isempty(trg_batch)
-            println("Empty batch detected.")
-            continue
-        end        
-        if isempty(my_vector)
-            println("The vector is empty.")
-        else
-            # Do something with my_vector[1]
-        end
+        
+        println("Processing a new batch")
+        println("Size of src_batch: ", length(src_batch))
+        println("Size of trg_batch: ", length(trg_batch))
         
         # Preprocess the batch
         src_seq, src_pad_mask, trg_input, trg_pad_mask, trg_target = preprocess(src_batch, trg_batch)
+
+        if isempty(src_seq) || isempty(trg_input) || isempty(trg_target)
+            println("Preprocessed tensors are empty. Skipping this batch.")
+            continue
+        end
+
+        # Log tensor shapes
+        log_tensor_shapes(src_seq, trg_input, preds)
 
         # Move data to device
         src_seq = src_seq |> device
@@ -142,12 +155,18 @@ for epoch in 1:config["epochs"]
         # Get predictions
         preds = model(src_seq, src_pad_mask, trg_input, trg_pad_mask)
 
+        # Log tensor shapes after prediction
+        log_tensor_shapes(src_seq, trg_input, preds)
+
         # Calculate loss
         loss = postprocess(preds, trg_target)
         total_train_loss += loss
 
         # Backpropagate
         backprop!(loss, model)
+
+        # Log loss value
+        log_loss_value(loss)
 
         # Update weights
         update!(optimizer, model)

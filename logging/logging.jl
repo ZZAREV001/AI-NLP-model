@@ -1,6 +1,6 @@
 module LoggingModule
 
-export log_attention, log_metrics
+export log_attention_weights, log_encoder_decoder_output, log_training_metrics, log_tensor_shapes, log_loss_value
 
 # Check for NaN values in an array
 function check_for_nan(array, name)
@@ -27,6 +27,18 @@ end
 function log_training_metrics(metrics)
     println("Training Metrics: $metrics")
     # Add more specific checks here
+end
+
+# Log tensor shapes
+function log_tensor_shapes(src_seq, trg_input, preds)
+    println("Shape of src_seq: ", size(src_seq))
+    println("Shape of trg_input: ", size(trg_input))
+    println("Shape of preds: ", size(preds))
+end
+
+# Log loss value
+function log_loss_value(loss)
+    println("Calculated loss: ", loss)
 end
 
 end # module
