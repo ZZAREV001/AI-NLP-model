@@ -1,10 +1,12 @@
 module Data
 
 using TextAnalysis
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/logging/logging.jl")
 
 # Define the tokenizer
 function my_tokenizer(text)
-  return ngrams(text, 1) # 1-grams, i.e., individual words
+  doc = StringDocument(text)  # Convert to StringDocument
+  return ngrams(doc, 1)  # Pass the document instead of the string
 end
 
 default_tokenizer = my_tokenizer
@@ -21,13 +23,52 @@ all_docs = StringDocument.(all_texts)
 corpus = Corpus(all_docs)
 
 # Tokenize the corpus
-src_seqs = [ngrams(text, 1) for text in src_texts]
-trg_seqs = [ngrams(text, 1) for text in trg_texts]
+src_seqs = [ngrams(StringDocument(text), 1) for text in src_texts]
+trg_seqs = [ngrams(StringDocument(text), 1) for text in trg_texts]
 
 # Convert source/target texts to sequences of indices
-# Note: possible to write custom code to convert tokens to indices based on your vocabulary
-src_seqs = [convert_to_indices(tokenize(tokenizer, text)) for text in src_texts]
-trg_seqs = [convert_to_indices(tokenize(tokenizer, text)) for text in trg_texts]
+# Function to read vocabulary from a file and create a dictionary
+function read_vocab(file_path)
+  vocab = Dict{String, Int}()
+  lines = readlines(file_path)
+  for line in lines
+      parts = split(line, "\t")  # Split the line by the tab character
+      if length(parts) != 2  # Skip lines that don't contain a tab character
+          continue
+      end
+      word, index = parts
+      vocab[word] = parse(Int, index)
+  end
+  return vocab
+end
+
+# Read source and target vocabularies
+source_vocab = read_vocab("data/source.txt")
+target_vocab = read_vocab("data/target.txt")
+
+# Modify the function to accept a vocabulary argument
+function convert_to_indices(tokens, vocab)
+  indices = Int[]
+  unk_index = get(vocab, "<UNK>", -1)  # Use -1 as a default for unknown tokens if <UNK> is not in vocab
+
+  LoggingModule.log_training_metrics("Vocabulary: $vocab")  # Log the vocabulary
+  LoggingModule.log_training_metrics("Tokens: $tokens")  # Log the tokens
+  LoggingModule.log_training_metrics("UNK index: $unk_index")  # Log the UNK index
+
+  for token in tokens
+      index = get(vocab, token, unk_index)
+      if index == -1
+          @warn "Unknown token encountered and <UNK> not in vocabulary."
+          continue  # Skip this token
+      end
+      push!(indices, index)
+  end
+  LoggingModule.log_training_metrics("Indices: $indices")  # Log the final indices
+  return indices
+end
+
+src_seqs = [convert_to_indices(default_tokenizer(text), source_vocab) for text in src_texts]
+trg_seqs = [convert_to_indices(default_tokenizer(text), target_vocab) for text in trg_texts]
 
 function padsequence(sequences, max_len; padding_value=0)
   padded_sequences = []
