@@ -26,7 +26,7 @@ function main()
     println("Length of preprocessed_data: ", length(preprocessed_data))
 
     # Convert raw_data to a dictionary if it's not already one
-    if typeof(raw_data) != Dict{String, Int64}
+    if typeof(raw_data) != Dict{String, Int}
         # Assuming raw_data is a Vector{String}, create a dictionary mapping each word to an ID
         vocab_dict = Dict(word => i for (i, word) in enumerate(raw_data))
     else
@@ -34,6 +34,10 @@ function main()
     end
 
     tokenizer = Tokenizer(vocab_dict, 40000, 0)  
+    # Debug lines to print the type and fields of 'tokenizer'
+    println("Type of tokenizer: ", typeof(tokenizer))
+    println("Fields of tokenizer: ", fieldnames(typeof(tokenizer)))
+    
     preprocessed_data = Preprocessing.preprocess_data(raw_data, tokenizer, 512)
 
     # Validate data

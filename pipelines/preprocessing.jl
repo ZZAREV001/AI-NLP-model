@@ -42,7 +42,8 @@ function tokenize(tokenizer, data)
         
         # Convert each token to its corresponding ID in the tokenizer's vocabulary
         token_ids = [get(tokenizer.vocab, token, tokenizer.unk_token_id) for token in tokens]
-
+        println("Debug in tokenize: Type of tokenizer: ", typeof(tokenizer))
+        println("Debug in tokenize: Content of tokenizer: ", tokenizer)
         # Add the sequence of token IDs to the array of tokenized sequences
         push!(tokenized_sequences, token_ids)
     end
@@ -51,8 +52,11 @@ function tokenize(tokenizer, data)
 end
 
 function preprocess_data(data, tokenizer, max_sequence_length::Int64)
+    
     # Tokenize the data
     sequences = tokenize(tokenizer, data)
+    println("Debug in preprocess_data: Type of tokenizer: ", typeof(tokenizer))
+    println("Debug in preprocess_data: Content of tokenizer: ", tokenizer)
 
     # Pad the sequences
     padded_sequences = pad_sequences(sequences, max_sequence_length)
