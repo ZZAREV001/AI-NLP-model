@@ -3,13 +3,20 @@ module Models
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/logging/logging.jl")
 using .LoggingModule
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/RLAgentModule/rl_agent.jl")
 
 """
 Transformer model. Consists of an encoder, decoder and RL agent.
 """
 
 function Transformer(; n_layers, n_heads, dim, dim_ff, max_len, src_vocab, trg_vocab, rl_agent)
-  
+    if n_layers <= 0
+        throw(ArgumentError("n_layers must be greater than 0"))
+    end
+    if n_heads <= 0
+        throw(ArgumentError("n_heads must be greater than 0"))
+    end
+
     # Attention uses linear attention 
     attn = LinearAttention(dim, n_heads)
     
@@ -73,12 +80,12 @@ function forward(model::Transformer, src, trg, mode)
     LoggingModule.log_encoder_decoder_output(nothing, decoder_outputs)  # Log decoder output
 
     # Pass the decoder outputs and attention weights through the RL agent
-    if model.rl_agent isa UniformRLAgent
-        rl_output = uniform_sample(model.rl_agent)
-    elseif model.rl_agent isa ReinforceRLAgent
-        rl_output = reinforce_sample(model.rl_agent, decoder_outputs, attention_weights)
+    if RLAgentModule.rl_agent isa UniformRLAgent
+        rl_output = uniform_sample(RLAgentModule.rl_agent)
+    elseif RLAgentModule.rl_agent isa ReinforceRLAgent
+        rl_output = reinforce_sample(RLAgentModule.rl_agent, decoder_outputs, attention_weights)
     else
-        error("Invalid RL agent: $(typeof(model.rl_agent))")
+        error("Invalid RL agent: $(typeof(RLAgentModule.rl_agent))")
     end
 
     return rl_output

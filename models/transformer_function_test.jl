@@ -1,57 +1,28 @@
+using Test
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/models/transformer.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
-using Logging
-using NNlib: relu
+include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/attention/attention.jl")
 
-# Define the vocabulary
-struct Vocabulary
-    words::Vector{String}
+# Initialize Attention
+attention_instance = attention.Attention(attention.Linear(32, 32), attention.Linear(32, 32), attention.Linear(32, 32))
+
+# Initialize FeedForward
+feed_forward_instance = FeedForward(attention.Linear(32, 64), attention.Linear(64, 32))
+
+# Initialize PositionEncoding
+position_encoding_instance = PositionEncoding(100, 32)
+
+# Initialize TransformerEncoder and TransformerDecoder
+encoder_instance = TransformerEncoder(2, attention_instance, feed_forward_instance, position_encoding_instance)
+decoder_instance = TransformerDecoder(2, attention_instance, feed_forward_instance, position_encoding_instance)
+
+# Initialize RLAgent
+policy_net_instance = Net([Layer(32, 64), Layer(64, 32)])
+value_net_instance = Net([Layer(32, 64), Layer(64, 32)])
+optimizer_instance = SGDOptimizer(0.001)
+rl_agent_instance = ReinforceRLAgent(policy_net_instance, value_net_instance, optimizer_instance)
+
+@testset "Transformer Tests" begin
+    @test typeof(Transformer(encoder_instance, decoder_instance, rl_agent_instance)) == typeof(YourTransformerType)
+    # Add more tests
 end
-
-# Instanciation of the RLAgent
-rl_agent = ReinforceRLAgent(
-    Net([Layer(rand(2, 2), rand(2), relu)]), 
-    Net([Layer(rand(2, 2), rand(2), relu)]), 
-    SGDOptimizer(0.01), 
-    TransformerEncoder(6, Attention(512, 8), FeedForward(rand(512, 512), rand(512, 512)), PositionEncoding(rand(512, 100))), 
-    TransformerDecoder(6, Attention(512, 8), FeedForward(rand(512, 512), rand(512, 512)), PositionEncoding(rand(512, 100)), Attention(512, 8))
-)
-
-# Define input parameters for the Transformer function
-n_layers = 6
-n_heads = 8
-dim = 512
-dim_ff = 2048
-max_len = 100
-src_vocab = Vocabulary(["hello", "world"])
-trg_vocab = Vocabulary(["bonjour", "monde"])
-
-# Create instances of the necessary components
-attn = Attention(dim, n_heads)
-ff = FeedForward(rand(dim, dim_ff), rand(dim_ff, dim))
-position_encoding = PositionEncoding(rand(dim, max_len))
-
-encoder = TransformerEncoder(n_layers, attn, ff, position_encoding) # Removed src_vocab
-decoder = TransformerDecoder(n_layers, attn, ff, position_encoding, Attention(dim, n_heads)) # Removed trg_vocab
-
-# Create the Transformer instance using the components
-transformer = Transformer(encoder, decoder, rl_agent)
-
-# Check the output of the Transformer function
-function Base.show(io::IO, t::Transformer)
-    println(io, "Transformer object:")
-    println(io, "  - Encoder: ", summary(t.encoder))
-    println(io, "  - Decoder: ", summary(t.decoder))
-    println(io, "  - RL Agent: ", summary(t.rl_agent))
-end
-
-# Log the output of the encoder and decoder
-LoggingModule.log_encoder_decoder_output(transformer.encoder_output, transformer.decoder_output)
-
-# Log the output of the RL agent
-LoggingModule.log_rl_agent_output(transformer.rl_agent_output)
-
-# Log the output of the Transformer function
-LoggingModule.log_transformer_output(transformer.output)
-
-# Log the input to the Transformer function
-LoggingModule.log_transformer_input(transformer.input)
