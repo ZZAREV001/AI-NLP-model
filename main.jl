@@ -18,7 +18,7 @@ function main()
     config = JSON.parsefile("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/configs/config.json")  
 
     # Load data
-    raw_data = Ingestion.load_data("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/vocab.json")
+    raw_data = Ingestion.load_data("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/vocab2.json")
 
     # Debug: Print the type of raw_data
     println("Type of raw_data: ", typeof(raw_data))

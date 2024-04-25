@@ -1,13 +1,14 @@
 using Test
+using Flux
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/models/transformer.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/common-definition/common.jl")
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/attention/attention.jl")
 
 # Initialize Attention
-attention_instance = attention.Attention(attention.Linear(32, 32), attention.Linear(32, 32), attention.Linear(32, 32))
+attention_instance = LinearAttention(32, 4) 
 
 # Initialize FeedForward
-feed_forward_instance = FeedForward(attention.Linear(32, 64), attention.Linear(64, 32))
+feed_forward_instance = FeedForward(Linear(32, 64), Linear(64, 32))
 
 # Initialize PositionEncoding
 position_encoding_instance = PositionEncoding(100, 32)

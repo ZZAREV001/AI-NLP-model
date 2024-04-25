@@ -1,4 +1,6 @@
 module Data
+using JSON
+using JSONTables
 
 using TextAnalysis
 include("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/logging/logging.jl")
@@ -30,21 +32,20 @@ trg_seqs = [ngrams(StringDocument(text), 1) for text in trg_texts]
 # Function to read vocabulary from a file and create a dictionary
 function read_vocab(file_path)
   vocab = Dict{String, Int}()
-  lines = readlines(file_path)
-  for line in lines
-      parts = split(line, "\t")  # Split the line by the tab character
-      if length(parts) != 2  # Skip lines that don't contain a tab character
-          continue
-      end
-      word, index = parts
-      vocab[word] = parse(Int, index)
+  json_string = read(file_path, String)
+  data = JSON.parse(json_string)
+  for (word, index) in data
+      vocab[word] = index
   end
   return vocab
 end
 
-# Read source and target vocabularies
-source_vocab = read_vocab("data/source.txt")
-target_vocab = read_vocab("data/target.txt")
+# Read the vocabulary from the JSON file
+vocab = read_vocab("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/vocab2.json")
+
+# Use the same vocabulary for both source and target
+source_vocab = vocab
+target_vocab = vocab
 
 # Modify the function to accept a vocabulary argument
 function convert_to_indices(tokens, vocab)
