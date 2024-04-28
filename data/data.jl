@@ -14,8 +14,9 @@ end
 default_tokenizer = my_tokenizer
 
 # Load source and target text data
-src_texts = readlines("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt") 
-trg_texts = readlines("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt")
+# Load a subset of the source and target text data
+src_texts = readlines("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/source.txt")[1:500]
+trg_texts = readlines("/Users/GoldenEagle/Desktop/Divers/Dossier-cours-IT/AI/Project-AI-NLP/data/target.txt")[1:500]
 
 # Create a StringDocument from the texts
 all_texts = vcat(src_texts, trg_texts)
@@ -30,12 +31,14 @@ trg_seqs = [ngrams(StringDocument(text), 1) for text in trg_texts]
 
 # Convert source/target texts to sequences of indices
 # Function to read vocabulary from a file and create a dictionary
-function read_vocab(file_path)
+function read_vocab(file_path, min_freq=5)
   vocab = Dict{String, Int}()
   json_string = read(file_path, String)
   data = JSON.parse(json_string)
-  for (word, index) in data
-      vocab[word] = index
+  for (word, freq) in data
+    if freq >= min_freq
+      vocab[word] = length(vocab) + 1
+    end
   end
   return vocab
 end
@@ -105,7 +108,7 @@ function preprocess(src_seq, trg_seq)
 end
 
 # Load and preprocess data
-function process_data(src_path, trg_path, max_len; tokenizer, batchsize=64)
+function process_data(src_path, trg_path, max_len; tokenizer, batchsize=32)
 
   # Load text
   src_texts = readlines(src_path)

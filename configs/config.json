@@ -8,7 +8,7 @@
   "attention_heads": 8,
   "feed_forward_size": 2048,
   "dim_ff": 2048,
-  "max_len": 512,
+  "max_len": 256,
   "position_encoding": "sine",
   "src_vocab": 40000,
   "trg_vocab": 40000,

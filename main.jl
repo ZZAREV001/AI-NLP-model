@@ -67,8 +67,19 @@ function main()
     # Initialize model
     model = Models.Transformer(n_layers=6, n_heads=8, dim=512, dim_ff=2048, max_len=512, src_vocab=40000, trg_vocab=40000, rl_agent=rl_agent)
 
+    # A function to tokenize the input question
+    function tokenize_input(question, tokenizer)
+        # Tokenize the input question
+        tokens = tokenizer.tokenize(question)
+        
+        # Convert tokens to indices based on the vocabulary
+        indices = [tokenizer.vocab_dict[token] for token in tokens]
+        
+        return indices
+    end
+
     # Train model
-    for epoch in 1:100
+    for epoch in 1:50
         for (src, trg) in preprocessed_data
             output = Models.forward(model, src, trg, "teacher_forcing")
             if isempty(src) || isempty(trg)
@@ -77,6 +88,28 @@ function main()
             end            
             # Compute loss and update model parameters
         end
+    end
+
+    # Inference step
+    while true
+        println("Enter a question (or type 'quit' to exit):")
+        question = readline()
+        
+        if question == "quit"
+            break
+        end
+        
+        # Tokenize the input question
+        input_indices = tokenize_input(question, tokenizer)
+        
+        # Perform inference
+        output_indices = Models.predict(model, input_indices)
+        
+        # Convert output indices back to words
+        output_words = [tokenizer.id_to_word(idx) for idx in output_indices]
+        
+        # Print the generated answer
+        println("Generated answer: ", join(output_words, " "))
     end
 
 end
